@@ -57,7 +57,7 @@ Dashboard ini dibangun menggunakan Looker Studio dan menyajikan gambaran menyelu
 Link dashboard: [Dashboard Monitoring Performa Siswa - Jaya Jaya Institut](https://datastudio.google.com/reporting/2fdfd7b6-32ed-4c8a-aaaa-14a0a6f7bc1b)
 
 **Insight utama dari dashboard:**
-1. Siswa yang belum melunasi uang kuliah menunjukkan proporsi dropout yang jauh lebih tinggi dibanding siswa yang sudah lunas, yang menandakan hal ini merupakan risiko paling kuat yang ditemukan dalam data.
+1. Siswa yang belum melunasi uang kuliah menunjukkan proporsi dropout yang jauh lebih tinggi dibanding siswa yang sudah lunas — ini merupakan sinyal risiko paling kuat yang ditemukan dalam data.
 2. Rata-rata nilai semester 2 siswa dengan status Dropout jauh lebih rendah dibanding Enrolled maupun Graduate, sebagian besar disebabkan oleh siswa yang keluar sebelum sempat dievaluasi pada semester tersebut.
 3. Beberapa program studi memiliki tingkat dropout yang signifikan lebih tinggi dibanding rata-rata keseluruhan, sehingga membutuhkan perhatian dan intervensi yang lebih spesifik.
 
@@ -75,6 +75,8 @@ streamlit run app.py
 ```
 
 Model yang digunakan pada prototype ini adalah **Random Forest Classifier** dengan parameter `class_weight='balanced'`, yang dipilih berdasarkan hasil evaluasi pada notebook (lihat bagian Evaluation di `notebook.ipynb`) karena memberikan keseimbangan terbaik antara kemampuan mendeteksi siswa Dropout dan siswa Enrolled dibandingkan varian model lain yang diuji.
+
+Seluruh input pada form prototype ditampilkan dalam bentuk label deskriptif (misalnya nama program studi, tingkat pendidikan, atau jenis pekerjaan orang tua) dan bukan dalam bentuk kode angka mentah, sehingga dapat digunakan langsung oleh staf non-teknis Jaya Jaya Institut tanpa perlu memahami skema pengkodean pada dataset asli.
 
 ## Conclusion
 
