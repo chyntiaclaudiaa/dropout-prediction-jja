@@ -5,7 +5,8 @@ import joblib
 import matplotlib.pyplot as plt
 
 # ==== Load model & label encoder ====
-model = joblib.load('model/model_rf.joblib')
+model = joblib.load('model/model_lr.joblib')
+scaler = joblib.load('model/scaler.joblib')
 label_encoder = joblib.load('model/label_encoder.joblib')
 
 st.set_page_config(page_title="Prediksi Status Siswa - Jaya Jaya Institut", layout="centered")
@@ -58,16 +59,11 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ==== Header ====
 st.title("Sistem Prediksi Status Siswa")
 st.markdown("Alat bantu identifikasi risiko dropout siswa berdasarkan data akademik dan sosial-ekonomi.")
 st.caption("Isi data siswa pada form di bawah, lalu klik tombol prediksi untuk melihat hasil analisis.")
 
 st.divider()
-
-# ============================================================
-# ==== MAPPING LABEL -> KODE (mengikuti dokumentasi resmi dataset UCI) ====
-# ============================================================
 
 marital_map = {
     "Belum Menikah": 1, "Menikah": 2, "Duda/Janda": 3,
@@ -231,10 +227,6 @@ occupation_map = {
     "Pedagang Kaki Lima dan Penyedia Layanan Jalanan": 195,
 }
 
-# ============================================================
-# ==== FORM INPUT ====
-# ============================================================
-
 with st.form("prediction_form"):
 
     st.subheader("Data Demografi")
@@ -315,10 +307,6 @@ with st.form("prediction_form"):
 
     submitted = st.form_submit_button("Prediksi Status Siswa")
 
-# ============================================================
-# ==== PROSES PREDIKSI ====
-# ============================================================
-
 if submitted:
     input_data = pd.DataFrame([{
         'Marital_status': marital_map[marital_status],
@@ -359,30 +347,30 @@ if submitted:
         'GDP': gdp,
     }])
 
-    prediction = model.predict(input_data)
+    input_scaled = scaler.transform(input_data)
+
+    prediction = model.predict(input_scaled)
     prediction_label = label_encoder.inverse_transform(prediction)[0]
 
-    proba = model.predict_proba(input_data)[0]
+    proba = model.predict_proba(input_scaled)[0]
     proba_dict = dict(zip(label_encoder.classes_, proba))
 
     st.divider()
     st.subheader("Hasil Prediksi")
+    st.caption("Model ini memprediksi potensi hasil akhir siswa: Dropout atau Graduate, berdasarkan pola siswa yang sudah memiliki status akhir pasti.")
 
     card_class = {
         "Dropout": "result-dropout",
-        "Enrolled": "result-enrolled",
         "Graduate": "result-graduate"
     }[prediction_label]
 
     status_label_id = {
-        "Dropout": "Dropout",
-        "Enrolled": "Masih Aktif Kuliah",
-        "Graduate": "Lulus"
+        "Dropout": "Berpotensi Dropout",
+        "Graduate": "Berpotensi Lulus (Graduate)"
     }[prediction_label]
 
     desc_text = {
         "Dropout": "Siswa ini terindikasi berisiko dropout. Disarankan mendapat bimbingan akademik dan/atau finansial secepatnya.",
-        "Enrolled": "Siswa ini diprediksi masih akan aktif berkuliah pada periode evaluasi berikutnya.",
         "Graduate": "Siswa ini diprediksi akan menyelesaikan studinya dengan baik."
     }[prediction_label]
 
@@ -394,7 +382,7 @@ if submitted:
     </div>
     """, unsafe_allow_html=True)
 
-    color_map = {"Dropout": "#c0392b", "Enrolled": "#2e5aac", "Graduate": "#27ae60"}
+    color_map = {"Dropout": "#c0392b", "Graduate": "#27ae60"}
 
     col_a, col_b = st.columns([2, 1])
     with col_a:

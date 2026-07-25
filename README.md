@@ -10,8 +10,10 @@ Saat ini pihak institusi baru bisa mengetahui siswa berisiko dropout setelah kon
 
 Berdasarkan latar belakang di atas, permasalahan yang dijawab dalam proyek ini adalah:
 - Faktor apa saja yang paling berpengaruh terhadap potensi dropout siswa di Jaya Jaya Institut?
-- Bagaimana cara memprediksi status siswa (Dropout, Enrolled, atau Graduate) berdasarkan data demografi, sosial-ekonomi, dan performa akademik mereka?
+- Bagaimana cara memprediksi apakah seorang siswa akan berpotensi Dropout atau Graduate, berdasarkan data demografi, sosial-ekonomi, dan performa akademik mereka?
 - Bagaimana pihak institusi dapat memonitor performa siswa secara berkelanjutan agar bisa memberikan intervensi lebih cepat?
+
+Model prediksi pada proyek ini difokuskan pada siswa dengan status akhir yang sudah pasti, yaitu **Dropout** dan **Graduate**. Siswa dengan status **Enrolled** tidak dilibatkan dalam proses pelatihan model karena status akhir mereka belum diketahui, namun data ini tetap dimanfaatkan pada tahap inferensi untuk memprediksi potensi hasil akhir mereka di masa depan.
 
 ### Cakupan Proyek
 
@@ -25,7 +27,7 @@ Untuk menjawab permasalahan tersebut, ruang lingkup proyek ini meliputi:
 
 ### Persiapan
 
-Sumber data: dataset "Students' Performance" yang disediakan oleh Jaya Jaya Institut melalui Dicoding.
+Sumber data: [data.csv](https://github.com/dicodingacademy/dicoding_dataset/blob/main/students_performance/data.csv), dataset "Students' Performance" yang disediakan oleh Jaya Jaya Institut melalui Dicoding.
 
 Setup environment:
 
@@ -74,7 +76,7 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Model yang digunakan pada prototype ini adalah **Random Forest Classifier** dengan parameter `class_weight='balanced'`, yang dipilih berdasarkan hasil evaluasi pada notebook (lihat bagian Evaluation di `notebook.ipynb`) karena memberikan keseimbangan terbaik antara kemampuan mendeteksi siswa Dropout dan siswa Enrolled dibandingkan varian model lain yang diuji.
+Model yang digunakan pada prototype ini adalah **Logistic Regression**, dilatih khusus menggunakan data siswa dengan status akhir Dropout dan Graduate (data dengan status Enrolled tidak digunakan sebagai data latih karena belum memiliki hasil akhir yang pasti). Model ini dipilih berdasarkan hasil evaluasi pada notebook (lihat bagian Evaluation di `notebook.ipynb`) karena memberikan akurasi dan recall Dropout tertinggi dibandingkan Random Forest pada perbandingan yang dilakukan.
 
 Seluruh input pada form prototype ditampilkan dalam bentuk label deskriptif (misalnya nama program studi, tingkat pendidikan, atau jenis pekerjaan orang tua) dan bukan dalam bentuk kode angka mentah, sehingga dapat digunakan langsung oleh staf non-teknis Jaya Jaya Institut tanpa perlu memahami skema pengkodean pada dataset asli.
 
@@ -82,9 +84,9 @@ Seluruh input pada form prototype ditampilkan dalam bentuk label deskriptif (mis
 
 Berdasarkan seluruh proses yang telah dilakukan, ditemukan bahwa status pembayaran uang kuliah dan performa akademik pada semester 1 dan 2 (jumlah mata kuliah yang disetujui serta nilai rata-rata) merupakan faktor paling berpengaruh terhadap potensi dropout siswa di Jaya Jaya Institut. Siswa yang belum melunasi uang kuliah menunjukkan proporsi dropout yang jauh lebih tinggi dibanding siswa yang sudah lunas.
 
-Model Random Forest dengan `class_weight='balanced'` yang dipilih sebagai model final mampu mengklasifikasikan status siswa dengan macro average recall sebesar 0.71, dengan kemampuan mendeteksi siswa Dropout pada recall 0.71 dan presisi 0.83. Model ini menjawab permasalahan bisnis yang diajukan Jaya Jaya Institut, yaitu mendeteksi siswa berisiko dropout sedini mungkin agar dapat diberikan bimbingan khusus lebih cepat.
+Model Logistic Regression yang dipilih sebagai model final, dilatih hanya menggunakan data siswa dengan status akhir Dropout dan Graduate, mampu mencapai akurasi sebesar 91.46% dengan recall Dropout sebesar 0.84 dan presisi 0.94. Hasil ini jauh lebih baik dibandingkan pendekatan awal yang melibatkan tiga kelas status sekaligus, karena target yang digunakan kini merepresentasikan hasil akhir siswa yang sudah pasti, bukan status yang masih dapat berubah.
 
-Model ini masih memiliki keterbatasan dalam mengklasifikasikan siswa dengan status Enrolled, yang kemungkinan disebabkan oleh karakteristik data siswa aktif yang berada di antara pola siswa Dropout dan Graduate. Hal ini menjadi catatan bagi pengembangan model di masa mendatang.
+Sebagai pemanfaatan tambahan, model ini juga digunakan untuk melakukan inferensi pada data siswa yang saat ini berstatus Enrolled. Dari 794 siswa aktif, model memprediksi 442 siswa berpotensi Graduate dan 352 siswa berpotensi Dropout, yang dapat menjadi masukan awal bagi pihak institusi untuk memprioritaskan bimbingan kepada siswa aktif yang diprediksi berisiko dropout.
 
 ### Rekomendasi Action Items
 
